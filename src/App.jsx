@@ -1,6 +1,8 @@
 import { useState } from "react";
 import CardBack from "./components/BackCard";
 import CardFront from "./components/FrontCard";
+import { ToastContainer, toast } from "react-toastify";
+import instance from "./api/instance";
 
 export default function App() {
   const [nome, setNome] = useState("");
@@ -10,17 +12,51 @@ export default function App() {
   const [cvv, setCvv] = useState(0);
   const [senha, setSenha] = useState("");
 
-  function pagar() {
-    console.log(nome);
-    console.log(numero);
-    console.log(mes);
-    console.log(ano);
-    console.log(cvv);
-    console.log(senha);
+  async function pagar() {
+    if (!nome || !numero || !mes || !ano || !cvv || !senha) {
+      return toast.error("Preencha todos os campos!");
+    }
+
+    if (numero.length !== 16 || cvv.length != 3) {
+      return toast.error("Número do cartão e/ou CVV inválido!");
+    }
+
+    if (ano.length !== 2) {
+      return toast.error("Ano inválido");
+    }
+
+    if (mes > 12 || mes < 1) {
+      return toast.error("Data de expiração inválida");
+    }
+
+    if (senha.length < 4) {
+      return toast.error("Senha inválida");
+    }
+
+    try {
+      const response = await instance.post("/creditcards", {
+        name: nome,
+        number: numero,
+        expiration: `${mes}/${ano}`,
+        cvv: cvv,
+        password: senha,
+      });
+
+      return toast.success("Pagamento realizado com sucesso!")
+
+    } catch (error) {
+      return toast.error("Erro ao processar o pagamento.");
+    }
   }
 
   return (
     <div className="w-full h-screen flex">
+      <ToastContainer
+        position="top-right"
+        hideProgressBar
+        autoClose={5000}
+        theme="dark"
+      />
       <div className="w-[40%] relative h-full bg-[#271540]">
         <div className="absolute top-8 left-65 ">
           <CardFront />
@@ -97,8 +133,9 @@ export default function App() {
             />
           </div>
           <button
-          onClick={pagar} 
-          className="w-full h-[50px] cursor-pointer rounded-md bg-[#271540] text-white font-bold">
+            onClick={pagar}
+            className="w-full h-[50px] cursor-pointer rounded-md bg-[#271540] text-white font-bold"
+          >
             Pagar
           </button>
         </div>
