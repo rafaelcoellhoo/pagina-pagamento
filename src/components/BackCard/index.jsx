@@ -1,4 +1,4 @@
-export default function CardBack(){
+export default function CardBack({cvv}){
     return (
         <div className="w-[450px] h-[250px] bg-black rounded-xl">
             <div className="w-full h-[25%] pt-6">
@@ -7,7 +7,7 @@ export default function CardBack(){
             <div className="w-full h-[75%] flex justify-center pt-10">
                 <div className="w-[340px] h-[50px] bg-[#AEB6BF]">
                     <div className="text-black flex items-center justify-end mr-2 pt-2.5">
-                        <p>000</p>
+                        <p>{cvv || "000"}</p>
                     </div>
                 </div>
             </div>
